@@ -7,7 +7,7 @@ from os import listdir, chdir
 from machine import Pin
 from time import sleep_ms
 
-mpu = MPU6050()
+mpu = MPU6050(sclPin = 37, sdaPin = 38)
 
 # List all files directory.
 print("Root directory: {} \n".format(listdir()))
@@ -22,42 +22,52 @@ while (filename % i) in listdir():
 
 # Save file in path /
 with open(filename % i, "w") as f:
-    cols = ["Temp", "AcX", "AcY", "AcZ"]
+    cols = ["Temp", "AcX", "AcY", "AcZ", "gX", "gY", "gX"]
     f.write(",".join(cols) + "\n")
     
-    while True:
-        # Accelerometer Data
-        accel = mpu.read_accel_data() # read the accelerometer [ms^-2]
-        aX = accel["x"]
-        aY = accel["y"]
-        aZ = accel["z"]
-        print("x: " + str(aX) + " y: " + str(aY) + " z: " + str(aZ))
-    
-        # Gyroscope Data
-        # gyro = mpu.read_gyro_data()   # read the gyro [deg/s]
-        # gX = gyro["x"]
-        # gY = gyro["y"]
-        # gZ = gyro["z"]
-        # print("x:" + str(gX) + " y:" + str(gY) + " z:" + str(gZ))
-    
-        # Rough Temperature
-        temp = mpu.read_temperature()   # read the device temperature [degC]
-        # print("Temperature: " + str(temp) + "°C")
+    try:
+        while True:
+            # Accelerometer Data
+            accel = mpu.read_accel_data() # read the accelerometer [ms^-2]
+            aX = accel["x"]
+            aY = accel["y"]
+            aZ = accel["z"]
+            #print(f"Accelerometer | x: {aX} y: {aY} z: {aZ}")
+        
+            #Gyroscope Data
+            gyro = mpu.read_gyro_data()   # read the gyro [deg/s]
+            gX = gyro["x"]
+            gY = gyro["y"]
+            gZ = gyro["z"]
+            #print(f"Gyroscope     | x: {gX} y: {gY} z: {gZ}")
+        
+            # Rough Temperature
+            temp = mpu.read_temperature()   # read the device temperature [degC]
+            #print(f"Temperature: {temp} °C")
 
-        # G-Force
-        # gforce = mpu.read_accel_abs(g=True) # read the absolute acceleration magnitude
-        # print("G-Force: " + str(gforce))
-    
-        # Write to file
-        data = {"Temp" : temp,
-                "AcX" : aX,
-                "AcY" : aY,
-                "AcZ" : aZ
-                }
+            # G-Force
+            # gforce = mpu.read_accel_abs(g=True) # read the absolute acceleration magnitude
+            #print("G-Force: " + str(gforce))
+            
+            # Angle
+            angle = mpu.read_angle()
+            print(f"Angle: x = {angle['x']}, y = {angle['y']}")
         
-        push = [  str(data[k]) for k in cols ]
-        row = ",".join(push)
-        f.write(row + "\n")
-        
-        # Time Interval Delay in millisecond (ms)
-        sleep_ms(100)
+            # Write to file
+            data = {"Temp" : temp,
+                    "AcX" : aX,
+                    "AcY" : aY,
+                    "AcZ" : aZ,
+                    "gX"  : gX,
+                    "gY"  : gY,
+                    "gZ"  : gZ
+                    }
+            
+            push = [  str(data[k]) for k in cols ]
+            row = ",".join(push)
+            f.write(row + "\n")
+            
+            # Time Interval Delay in millisecond (ms)
+            sleep_ms(100)
+    except KeyboardInterrupt:
+        print("Test ended.")
