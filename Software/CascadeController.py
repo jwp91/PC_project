@@ -105,13 +105,13 @@ def position():
 center()
 mode = 'manual'
 # Outer PID configuration (position error -> angle setpoint)
-Kc_out = 250
+Kc_out = 150
 KI_out = 0
 KD_out = 450
 pidOuter = pc.PID(Kc_out, KI_out, KD_out, dt=0.1, \
              outputLimits=[minAngle, maxAngle])
 # Inner PID configuration (angle error -> motor speed)
-Kc_in = 10.0/25 # Simulation used a range of -25 to 25 instead of -1 to 1
+Kc_in = 10 # Simulation used a range of -25 to 25 instead of -1 to 1
 KI_in = 0.0
 KD_in = 0.0
 pidInner = pc.PID(Kc_in, KI_in, KD_in, dt = 0.1, \
@@ -142,8 +142,8 @@ while True:
                 mode = 'auto'
                 print("Mode: auto")
         elif mode == 'auto':            
-            SP = L/2
-            pos = position()
+            SP = L/2000
+            pos = position() / 1000
             pidOuter.setpoint = SP
             thetaSP = pidOuter(pos)[0]
             pidInner.setpoint = thetaSP
@@ -161,4 +161,6 @@ while True:
             print("Unknown error...")
     except KeyboardInterrupt:
         print("Loop ended.")
+        motor.set_speed(0)
+        time.sleep(10)
         break
