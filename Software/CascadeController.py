@@ -90,8 +90,12 @@ def center():
 L = 410 # mm
 def position():
     s1 = sensor1.distance_mm()
-    sleep(0.0012) # Time for a ping at max distance
+    time.sleep(0.0012) # Time for a ping at max distance
     s2 = sensor2.distance_mm()
+    if s1 < 0:
+        s1 = 0
+    if s2 < 0:
+        s2 = 0
     if s1<s2:
         return s1
     else:
