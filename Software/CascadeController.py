@@ -118,12 +118,13 @@ pidInner = pc.PID(Kc_in, KI_in, KD_in, dt = 0.1, \
                   outputLimits=[-1, 1])
 startTime = time.time() # seconds
 reading = 0
+print("Mode: manual")
 while True:
     try:
         if mode == 'manual':
             yMaxRead = 700
             stick = (yButtZero-yButton.read())/yMaxRead
-            if abs(stick) < 0.05:
+            if abs(stick) < 0.2:
                 stick = 0
             reading = max(min(1, stick), -1)
             if boundsOK():
@@ -139,6 +140,7 @@ while True:
                 # button's sensitivity by effectively only having it
                 # read every half second.
                 mode = 'auto'
+                print("Mode: auto")
         elif mode == 'auto':            
             SP = L/2
             pos = position()
@@ -154,6 +156,7 @@ while True:
             print(f"pos: {pos:.4g}, theta: {thetaActual:.4g}, speedSP: {newSpeed:.4g}")
             if button.value() == 0 and (time.time()-startTime)%0.5<0.01:
                 mode = 'manual'
+                print("Mode: manual")
         else:
             print("Unknown error...")
     except KeyboardInterrupt:
