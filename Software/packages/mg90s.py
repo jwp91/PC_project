@@ -3,7 +3,7 @@ from machine import Pin, PWM
 from time import sleep
 
 class servo:
-    def __init__(self, pin, min_speed = 0.089):
+    def __init__(self, pin, min_speed = 0.2):
         """
 Initializes the continuous servo.
 Inputs:
