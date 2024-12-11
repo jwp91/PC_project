@@ -50,6 +50,7 @@ motor = servo(servoPin)
 #----- Auxilliary Functions
 minAngle = 1.8
 maxAngle = 2.65
+midAngle = (maxAngle-minAngle)/2+minAngle
 def boundsOK():
     angle = mpu.read_angle()['y']
     if angle<minAngle:
@@ -122,18 +123,19 @@ def position(alpha = 0.1, output = False):
 center()
 mode = 'manual'
 # Outer PID configuration (position error -> angle setpoint)
-Kc_out = pi/250
+Kc_out = -pi # ~= (maxTheta-midTheta)/(midPos-maxPos)
 KI_out = 0
 KD_out = 2*Kc_out
 # Optimization showed that KD_out ~= 2*Kc_out
-pidOuter = pc.PID(Kc_out, KI_out, KD_out, dt=0.1, \
-             outputLimits=[minAngle, maxAngle])
+dt = 0.1 # seconds, measured using the closed-loop code
+pidOuter = pc.PID(Kc_out, KI_out, KD_out, dt=dt, \
+             outputLimits=[minAngle, maxAngle], ubias = midAngle)
 # Inner PID configuration (angle error -> motor speed)
-Kc_in = -6.4 # Simulation used a range of -25 to 25 instead of -1 to 1
+Kc_in = -3.2 # (maxTheta-minTheta)/-1
 KI_in = 0.0
 KD_in = 0.0
-pidInner = pc.PID(Kc_in, KI_in, KD_in, dt = 0.1, \
-                  outputLimits=[-1, 1])
+pidInner = pc.PID(Kc_in, KI_in, KD_in, dt = dt, \
+                  outputLimits=[-1, 1], ubias = 0.0)
 startTime = time.time() # seconds
 reading = 0
 print("Mode: manual")
@@ -160,8 +162,8 @@ try:
                 print("Mode: auto")
         elif mode == 'auto':
             # Lengths should be meters to match PID params
-            SP = L/2
-            pos = position()
+            SP = L/2/1000 # m
+            pos = position()/1000 # m
             pidOuter.setpoint = SP
             thetaSP, Pout, Iout, Dout = pidOuter(pos)
             pidInner.setpoint = thetaSP
@@ -174,7 +176,7 @@ try:
                 #print("Bounds error! Correcting...")
             #print(f"pos: {pos:.4g}, posSP: {SP:.4g}")
             print(f"thetaSP: {thetaSP:.4g}, theta: {thetaActual:.4g}")
-            if button.value() == 0 and (time.time()-startTime)%0.5<0.01:
+            if button.value() == 0 and (time.time()-startTime)%0.25<0.01:
                 mode = 'manual'
                 print("Mode: manual")
         else:
