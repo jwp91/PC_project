@@ -204,7 +204,7 @@ try:
             thetaLast = newTheta*alpha + (1-alpha)*thetaLast
             newSpeed = pidInner(thetaLast)[0]
             currentSpeed = alpha*newSpeed + (1-alpha)*currentSpeed
-            print(f"zero: {0.0}, L: {L/1000}, pos: {pos:.4g}, sp: {SP:.4g}")
+            print(f"0.0, {L/1000}, {pos:.4g}, {SP:.4g}")
             if boundsOK():
                 motor.set_speed(newSpeed)
             else:
