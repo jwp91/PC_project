@@ -129,9 +129,9 @@ def position(output = False):
 center()
 mode = 'manual'
 # Outer PID configuration (position error -> angle setpoint)
-Kc_out = 0.4 # ~= (maxTheta-midTheta)/(midPos-maxPos)
-KI_out = 0.0
-KD_out = 1.5
+Kc_out = 0.25 # ~= (maxTheta-midTheta)/(midPos-maxPos)
+KI_out = 0.095
+KD_out = 2.4
 # Previous: 5.0, 12
 # Optimization showed that KD_out ~= 2*Kc_out
 dt = 0.1 # seconds, measured using the closed-loop code
